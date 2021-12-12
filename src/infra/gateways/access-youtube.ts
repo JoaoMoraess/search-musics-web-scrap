@@ -9,7 +9,7 @@ export class AccessYoutube {
   ) {}
 
   async perform (searchStrings: string[]): Promise<void> {
-    const browser = await puppeteer.launch({ headless: false })
+    const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
 
     const videoUrls = []
@@ -17,35 +17,41 @@ export class AccessYoutube {
     const videoSearchStrings = []
 
     for (const string of searchStrings) {
+      let searchVideos = []
       await page.goto('https://youtube.com')
+
+      await page.waitForSelector('input[id=search]')
       await page.type('input[id=search]', string)
       await page.click('button[id=search-icon-legacy]')
 
       await page.waitForSelector('.yt-simple-endpoint.style-scope.ytd-toggle-button-renderer')
-
       const filterButton = await page.$('.yt-simple-endpoint.style-scope.ytd-toggle-button-renderer')
-
-      filterButton?.click()
-
+      await filterButton?.click()
       await page.waitForSelector('.yt-simple-endpoint.style-scope.ytd-search-filter-renderer')
       const fourMinTime = await page.$$('.yt-simple-endpoint.style-scope.ytd-search-filter-renderer')
+      await fourMinTime[9]?.click()
 
-      fourMinTime[9]?.click()
+      await page.waitForSelector('#search-clear-button')
+      const clearSearchButtons = await page.$$('#search-clear-button')
+
+      await clearSearchButtons[0].click()
+
+      await page.waitForSelector('ytd-thumbnail.ytd-video-renderer')
 
       await page.waitForSelector('a[id=video-title]')
 
-      const videoUrl = await page.$$eval('a[id=video-title]', el => el
+      searchVideos = await page.$$eval('a[id=video-title]', el => el
         .filter(x => !x.getAttribute('title')?.toLowerCase()?.includes('ao vivo'))
         .filter(x => !x.getAttribute('title')?.toLowerCase()?.includes('remix'))
-        .map(x => x.getAttribute('href')))
+        .filter(x => !x.getAttribute('title')?.toLowerCase()?.includes('programa'))
+        .filter(x => !x.getAttribute('title')?.toLowerCase()?.includes('karaokê'))
+        .filter(x => !x.getAttribute('title')?.toLowerCase()?.includes('karaoke'))
+        .map(x => ({ url: x.getAttribute('href'), name: x.getAttribute('title') })))
 
-      const videoName = await page.$$eval('a[id=video-title]', el => el
-        .filter(x => !x.getAttribute('title')?.toLowerCase()?.includes('ao vivo'))
-        .filter(x => !x.getAttribute('title')?.toLowerCase()?.includes('remix'))
-        .map(x => x.getAttribute('title')))
+      const video = searchVideos[0]
 
-      videoUrls.push(`https://www.youtube.com${videoUrl[0]}`)
-      videoNames.push(`${videoName[0]}`)
+      videoUrls.push(`https://www.youtube.com${video.url}`)
+      videoNames.push(video.name!)
       videoSearchStrings.push(string)
 
       const savedUrls = await this.videoUrlsRepo.load()
@@ -55,7 +61,7 @@ export class AccessYoutube {
       const savedSearchStrings = await this.videoSearchStringsRepo.load()
       await this.videoSearchStringsRepo.save([...new Set([...videoSearchStrings, ...savedSearchStrings])])
 
-      console.log(`Saving ${videoName} | ${(100 * videoUrls.length / searchStrings.length).toFixed(2)}%`)
+      console.log(`Saving ${video.name} | ${(100 * videoUrls.length / searchStrings.length).toFixed(2)}%`)
     }
     await browser.close()
     console.log('-------------------------FIM-------------------------')

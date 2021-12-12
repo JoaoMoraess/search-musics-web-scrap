@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/main/index.ts",
     "build": "tsc --build",
-    "start": "node ./build/main/index.js",
+    "start": "node  -r dotenv/config ./build/src/main/index.js",
     "test": "jest --passWithNoTests --forceExit --no-cache --runInBand",
     "test:watch": "yarn test --watch"
   },

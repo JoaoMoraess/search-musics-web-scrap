@@ -1,8 +1,10 @@
 import './config/module-alias'
-import { makeAccessYoutube } from './factories/infra/gateways/access-youtube'
+import { makeAccessYoutube } from '@/main/factories/infra/gateways'
 import { AmmountOfSongsPerArtist } from '@/domain/contracts'
-import { makeLoadNotSavedUrls } from './factories/application/decorators/load-not-saved-urls'
-import { makeLoadMusicByArtists } from './factories/domain/use-cases/load-music-by-artist'
+import { makeLoadNotSavedUrls } from '@/main/factories/application/decorators/load-not-saved-urls'
+import { makeLoadMusicByArtists } from '@/main/factories/domain/use-cases/load-music-by-artist'
+
+// nomes salvos no servidor do site vagalume.com
 
 const artistsVagalumeUrl: AmmountOfSongsPerArtist = {
   'rio-negro-e-solimoes': 30,
