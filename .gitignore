@@ -1,5 +1,3 @@
 node_modules
 build
-videonames.txt
-videourls.txt
-videosearchstrings.txt
+records/**/*

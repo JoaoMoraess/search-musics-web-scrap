@@ -1,7 +1,8 @@
+import { LoadNotSavedVideos } from '@/application/contracts'
 import { LoadLocalRepository, SaveLocalRepository } from '@/domain/contracts'
 import puppeteer from 'puppeteer'
 
-export class AccessYoutube {
+export class AccessYoutube implements LoadNotSavedVideos {
   constructor (
     private readonly videoUrlsRepo: SaveLocalRepository & LoadLocalRepository,
     private readonly videoNamesRepo: SaveLocalRepository & LoadLocalRepository,

@@ -1,5 +1,5 @@
 import { AmmountOfSongsPerArtist } from '.'
 
-export interface LoadAllMusics {
-  loadAll: (ammountOfSongs: AmmountOfSongsPerArtist) => Promise<string[]>
+export interface LoaAndSavedAllMusics {
+  loadAndSaveAllMusics: (ammountOfSongs: AmmountOfSongsPerArtist) => Promise<void>
 }

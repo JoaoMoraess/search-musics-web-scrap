@@ -1,27 +1,32 @@
+import { LoadNotSavedVideos } from '@/application/contracts'
 import { LoadMusicByArtist } from '@/application/methods'
-import { LoadMusicsByArtists } from '@/domain/use-cases/load-musics-by-artists'
+import { LoadAndSaveMusicsByArtists } from '@/domain/use-cases/load-musics-by-artists'
 import { mock, MockProxy } from 'jest-mock-extended'
 
-describe('LoadMusicsByArtists', () => {
-  let sut: LoadMusicsByArtists
-  let loadMusicsByartistSpy: MockProxy<LoadMusicByArtist>
+describe('LoadAndSaveMusicsByArtists', () => {
+  let sut: LoadAndSaveMusicsByArtists
+  let loadAndSaveMusicsByArtistspy: MockProxy<LoadMusicByArtist>
+  let loadNotSavedUrlsSpy: MockProxy<LoadNotSavedVideos>
 
   beforeAll(() => {
-    loadMusicsByartistSpy = mock<LoadMusicByArtist>()
-    loadMusicsByartistSpy.load.mockResolvedValue(['any_music_name', 'other_music_name'])
+    loadAndSaveMusicsByArtistspy = mock<LoadMusicByArtist>()
+    loadAndSaveMusicsByArtistspy.load.mockResolvedValue(['any_music_name', 'other_music_name'])
+
+    loadNotSavedUrlsSpy = mock<LoadNotSavedVideos>()
+    loadNotSavedUrlsSpy.perform.mockImplementation()
   })
 
   beforeEach(() => {
-    sut = new LoadMusicsByArtists(loadMusicsByartistSpy)
+    sut = new LoadAndSaveMusicsByArtists(loadAndSaveMusicsByArtistspy, loadNotSavedUrlsSpy)
   })
   it('should call loadMusicsByartist with correct values', async () => {
-    await sut.loadAll({ 'any_artist_name': 2 })
+    await sut.loadAndSaveAllMusics({ 'any_artist_name': 2 })
 
-    expect(loadMusicsByartistSpy.load).toHaveBeenCalledWith({ artistNameSlug: 'any_artist_name', ammountOfSongs: 2 })
+    expect(loadAndSaveMusicsByArtistspy.load).toHaveBeenCalledWith({ artistNameSlug: 'any_artist_name', ammountOfSongs: 2 })
   })
-  it('should return the correct value', async () => {
-    const musics = await sut.loadAll({ 'any_artist_name': 2 })
+  it('should call loadNotSavedUrls with correct values', async () => {
+    await sut.loadAndSaveAllMusics({ 'any_artist_name': 2 })
 
-    expect(musics).toEqual(['any_music_name', 'other_music_name'])
+    expect(loadNotSavedUrlsSpy.perform).toHaveBeenCalledWith(['any_music_name', 'other_music_name'])
   })
 })

@@ -1,8 +1,6 @@
 import './config/module-alias'
-import { makeAccessYoutube } from '@/main/factories/infra/gateways'
 import { AmmountOfSongsPerArtist } from '@/domain/contracts'
-import { makeLoadNotSavedUrls } from '@/main/factories/application/decorators/load-not-saved-urls'
-import { makeLoadMusicByArtists } from '@/main/factories/domain/use-cases/load-music-by-artist'
+import { makeLoadAndSaveMusicsByArtists } from '@/main/factories/domain/use-cases/load-music-by-artist'
 
 // nomes salvos no servidor do site vagalume.com
 
@@ -53,12 +51,8 @@ const artistsVagalumeUrl: AmmountOfSongsPerArtist = {
 }
 
 const initApp = async (): Promise<void> => {
-  const loadMusicsByArtists = makeLoadMusicByArtists()
-  const accessYoutube = makeAccessYoutube()
-  const saveVideoUrls = makeLoadNotSavedUrls(accessYoutube)
-  const searchStrings = await loadMusicsByArtists.loadAll(artistsVagalumeUrl)
-
-  await saveVideoUrls.perform(searchStrings)
+  const loadAndSaveMusicsByArtists = makeLoadAndSaveMusicsByArtists()
+  await loadAndSaveMusicsByArtists.loadAndSaveAllMusics(artistsVagalumeUrl)
 }
 
 void initApp()

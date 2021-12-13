@@ -1,16 +1,23 @@
+import { LoadNotSavedVideos } from '@/application/contracts'
 import { LoadMusicByArtist } from '@/application/methods'
-import { AmmountOfSongsPerArtist, LoadAllMusics } from '@/domain/contracts'
+import { AmmountOfSongsPerArtist, LoaAndSavedAllMusics } from '@/domain/contracts'
 
-export class LoadMusicsByArtists implements LoadAllMusics {
+export class LoadAndSaveMusicsByArtists implements LoaAndSavedAllMusics {
   constructor (
-    private readonly loadMusicByArtist: LoadMusicByArtist
+    private readonly loadMusicByArtist: LoadMusicByArtist,
+    private readonly loadNotSavedUrls: LoadNotSavedVideos
   ) {}
 
-  async loadAll (ammountOfSongs: AmmountOfSongsPerArtist): Promise<string[]> {
+  async loadAndSaveAllMusics (ammountOfSongs: AmmountOfSongsPerArtist): Promise<void> {
     const keys = Object.keys(ammountOfSongs)
     const promises: Array<Promise<string[]>> = keys
-      .map(async (key) => await this.loadMusicByArtist.load({ artistNameSlug: key, ammountOfSongs: ammountOfSongs[key] }))
+      .map(async (key) => await this.loadMusicByArtist.load({
+        artistNameSlug: key,
+        ammountOfSongs: ammountOfSongs[key]
+      }))
     const result = await Promise.all(promises)
-    return result.flat()
+    const musics = result.flat()
+
+    await this.loadNotSavedUrls.perform(musics)
   }
 }

@@ -41,10 +41,4 @@ describe('LoadNotSavedVideosDecorator', () => {
 
     expect(decorateeSpy.perform).not.toHaveBeenCalled()
   })
-  it('should return TODAS AS MUSICAS ESTAO SALVAS if all musics is saved', async () => {
-    loadVideoSearchStringsRepoSpy.load.mockResolvedValueOnce(['any_saved_string', 'other_saved_string'])
-    const response = await sut.perform(['any_saved_string', 'other_saved_string'])
-
-    expect(response).toBe('TODAS AS MUSICAS ESTAO SALVAS')
-  })
 })
